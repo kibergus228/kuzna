@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ковальня — вироби ручної ковки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --iron: #15110d;
+    --charcoal: #221b16;
+    --ash: #4a4038;
+    --rust: #b9440e;
+    --ember: #ff7a29;
+    --spark: #ffcf8a;
+    --paper: #e9e1d6;
+    --font-head: 'Oswald', 'Arial Narrow', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:inherit; margin:0; padding:0;}
+  html{scroll-padding-top: env(safe-area-inset-top, 0px); scroll-behavior:smooth;}
+  html,body{
+    background: var(--iron);
+    color: var(--paper);
+    font-family: var(--font-body);
+    overflow-x:hidden;
+    min-height:100%;
+  }
+  img{max-width:100%; display:block;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+  }
+
+  /* ---------- background texture ---------- */
+  body{
+    background-image:
+      radial-gradient(ellipse at 15% 20%, rgba(255,122,41,0.06), transparent 45%),
+      radial-gradient(ellipse at 85% 75%, rgba(255,122,41,0.05), transparent 50%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.25) 0px, rgba(0,0,0,0.25) 1px, transparent 1px, transparent 3px);
+    background-attachment: fixed;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    position:relative;
+    padding: clamp(2.5rem, 6vw, 5rem) 1.5rem clamp(2rem, 4vw, 3rem);
+    text-align:center;
+    border-bottom: 1px solid rgba(255,122,41,0.18);
+  }
+  .eyebrow-mark{
+    display:inline-block;
+    width:34px; height:2px;
+    background: var(--ember);
+    margin-bottom: 1.1rem;
+  }
+  h1{
+    font-family: var(--font-head);
+    font-weight:700;
+    letter-spacing: 0.01em;
+    font-size: clamp(2.4rem, 7vw, 4.6rem);
+    line-height: 1.02;
+    color: var(--paper);
+    text-shadow: 0 0 30px rgba(255,122,41,0.15);
+  }
+  header p.tag{
+    margin-top: 1rem;
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    color: #c9bdae;
+    max-width: 42ch;
+    margin-left:auto; margin-right:auto;
+    font-weight:400;
+  }
+
+  /* ---------- layout with side rails ---------- */
+  .stage{
+    position:relative;
+    display:grid;
+    grid-template-columns: minmax(60px,120px) 1fr minmax(60px,120px);
+    gap: 0;
+  }
+  .rail{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .rail svg{ width: 100%; height:auto; max-width:110px; }
+  main{ min-width:0; padding: 0 1rem; }
+
+  @media (max-width: 780px){
+    .stage{ grid-template-columns: 40px 1fr 40px; }
+    .rail svg{ max-width: 40px; }
+  }
+
+  /* ---------- anvil + hammer (left rail) ---------- */
+  .hammer-group{ transform-origin: 78px 38px; animation: strike 2.6s ease-in-out infinite; }
+  @keyframes strike{
+    0%   { transform: rotate(-32deg); }
+    12%  { transform: rotate(-32deg); }
+    22%  { transform: rotate(4deg); }
+    28%  { transform: rotate(-6deg); }
+    34%  { transform: rotate(2deg); }
+    40%  { transform: rotate(0deg); }
+    100% { transform: rotate(-32deg); }
+  }
+  .spark-burst circle{
+    opacity:0;
+    animation: burst 2.6s ease-out infinite;
+  }
+  .spark-burst circle:nth-child(2){ animation-delay: 0.02s; }
+  .spark-burst circle:nth-child(3){ animation-delay: 0.05s; }
+  .spark-burst circle:nth-child(4){ animation-delay: 0.03s; }
+  @keyframes burst{
+    0%, 35%   { opacity:0; transform: translate(0,0) scale(0.4); }
+    38%       { opacity:1; }
+    55%       { opacity:0; transform: translate(var(--dx,10px), var(--dy,-14px)) scale(1); }
+    100%      { opacity:0; }
+  }
+  .glow-patch{ animation: glow 2.6s ease-in-out infinite; }
+  @keyframes glow{
+    0%, 34%  { opacity:0.25; }
+    40%      { opacity:0.85; }
+    70%      { opacity:0.25; }
+    100%     { opacity:0.25; }
+  }
+
+  /* ---------- bellows (right rail) ---------- */
+  .bellows-group{ animation: breathe 3.4s ease-in-out infinite; transform-origin: 55px 70px; }
+  @keyframes breathe{
+    0%, 100% { transform: scaleX(1); }
+    50%      { transform: scaleX(0.72); }
+  }
+  .ember-glow{ animation: emberpulse 3.4s ease-in-out infinite; }
+  @keyframes emberpulse{
+    0%, 100% { opacity:0.3; }
+    50%      { opacity:0.9; }
+  }
+  .drift circle{ animation: drift 5s linear infinite; opacity:0; }
+  .drift circle:nth-child(1){ animation-delay:0s; }
+  .drift circle:nth-child(2){ animation-delay:1.6s; }
+  .drift circle:nth-child(3){ animation-delay:3.1s; }
+  @keyframes drift{
+    0%   { opacity:0; transform: translateY(0); }
+    10%  { opacity:0.9; }
+    90%  { opacity:0.2; }
+    100% { opacity:0; transform: translateY(-90px) translateX(6px); }
+  }
+
+  /* ---------- section headings ---------- */
+  .section-head{
+    max-width: 640px;
+    margin: clamp(3rem,6vw,5rem) auto 2rem;
+    text-align:center;
+  }
+  .section-head h2{
+    font-family: var(--font-head);
+    font-weight:600;
+    font-size: clamp(1.6rem, 3.4vw, 2.3rem);
+  }
+  .section-head p{
+    margin-top:0.6rem;
+    color:#b9ac9c;
+    font-size:0.98rem;
+  }
+
+  /* ---------- gallery ---------- */
+  .gallery{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 0 clamp(3rem,6vw,5rem);
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: clamp(0.9rem, 2vw, 1.4rem);
+  }
+  .piece{
+    position:relative;
+    background: var(--charcoal);
+    border: 1px solid rgba(255,122,41,0.14);
+    overflow:hidden;
+    aspect-ratio: 4 / 5;
+  }
+  .piece img{
+    width:100%; height:100%;
+    object-fit: cover;
+    filter: saturate(1.02) contrast(1.03);
+    transition: transform .5s ease;
+  }
+  .piece:hover img{ transform: scale(1.045); }
+  .piece .placeholder{
+    width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column; gap:0.5rem;
+    background:
+      repeating-linear-gradient(135deg, rgba(255,122,41,0.05) 0 12px, transparent 12px 24px),
+      linear-gradient(160deg, #2a221b, #1a1512);
+    color: #8d8073;
+    font-size:0.85rem;
+    text-align:center;
+    padding: 1rem;
+  }
+  .piece .placeholder .mark{
+    width:26px; height:26px;
+    border:1.5px solid var(--rust);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color: var(--ember);
+    font-size:0.9rem;
+  }
+  .piece .cap{
+    position:absolute; left:0; right:0; bottom:0;
+    padding: 0.7rem 0.85rem;
+    background: linear-gradient(0deg, rgba(10,8,6,0.88), transparent);
+    font-size:0.85rem;
+    color: var(--paper);
+    font-weight:500;
+    opacity:0;
+    transform: translateY(6px);
+    transition: opacity .3s ease, transform .3s ease;
+  }
+  .piece:hover .cap{ opacity:1; transform: translateY(0); }
+
+  /* ---------- about strip ---------- */
+  .strip{
+    border-top: 1px solid rgba(255,122,41,0.16);
+    border-bottom: 1px solid rgba(255,122,41,0.16);
+    padding: clamp(2.2rem,5vw,3.2rem) 1.5rem;
+    text-align:center;
+  }
+  .strip p{
+    max-width: 60ch;
+    margin: 0 auto;
+    font-size: clamp(1rem, 1.8vw, 1.15rem);
+    color:#d6cabb;
+    line-height:1.6;
+  }
+  .strip strong{ color: var(--ember); font-weight:600; }
+
+  /* ---------- footer ---------- */
+  footer{
+    padding: 2.5rem 1.5rem 3rem;
+    text-align:center;
+    color:#7c7062;
+    font-size:0.85rem;
+  }
+  footer a{ color: var(--ember); text-decoration:none; }
+  footer a:hover{ text-decoration:underline; }
+
+  /* ---------- how-to note (for the site owner) ---------- */
+  /* ---------- ambient embers (whole page) ---------- */
+  .embers{
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .embers span{
+    position:absolute;
+    bottom: -10px;
+    width: 3px; height:3px;
+    border-radius:50%;
+    background: var(--ember);
+    box-shadow: 0 0 6px 1px var(--ember);
+    opacity:0;
+    animation: rise linear infinite;
+  }
+  @keyframes rise{
+    0%   { opacity:0; transform: translate(0,0); }
+    8%   { opacity:0.9; }
+    90%  { opacity:0.2; }
+    100% { opacity:0; transform: translate(var(--drift,20px), -105vh); }
+  }
+
+  /* ---------- flame flicker beside title ---------- */
+  .flame-wrap{ display:inline-flex; align-items:center; justify-content:center; gap:0.6rem; }
+  .flame{ width: clamp(26px,4vw,38px); height:auto; }
+  .flame .tongue{ transform-origin: 50% 100%; animation: flicker 1.8s ease-in-out infinite; }
+  .flame .tongue.t2{ animation-delay: 0.3s; animation-duration: 2.1s; }
+  .flame .tongue.t3{ animation-delay: 0.6s; animation-duration: 1.6s; }
+  @keyframes flicker{
+    0%,100% { transform: scaleY(1) scaleX(1) skewX(0deg); }
+    30%     { transform: scaleY(1.08) scaleX(0.94) skewX(-2deg); }
+    55%     { transform: scaleY(0.92) scaleX(1.05) skewX(3deg); }
+    80%     { transform: scaleY(1.05) scaleX(0.97) skewX(-1deg); }
+  }
+
+  /* ---------- swinging chain + hook divider ---------- */
+  .chain-divider{
+    display:flex;
+    justify-content:center;
+    margin: 0 auto clamp(2rem,4vw,3rem);
+  }
+  .chain-divider svg{ width: 70px; height:auto; }
+  .chain-swing{ transform-origin: 35px 0px; animation: swing 4.2s ease-in-out infinite; }
+  @keyframes swing{
+    0%,100% { transform: rotate(-4deg); }
+    50%     { transform: rotate(4deg); }
+  }
+  .hook-glow{ animation: hookglow 2.4s ease-in-out infinite; }
+  @keyframes hookglow{
+    0%,100% { opacity:0.5; }
+    50%     { opacity:1; }
+  }
+
+  /* ---------- heat shimmer over gallery ---------- */
+  .gallery{ position:relative; }
+  .heat-shimmer{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background: linear-gradient(180deg, transparent, rgba(255,122,41,0.03), transparent);
+    animation: shimmer 6s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+  @keyframes shimmer{
+    0%,100% { transform: translateY(0); opacity:0.5; }
+    50%     { transform: translateY(-14px); opacity:1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="embers" aria-hidden="true">
+  <span style="left:6%;  --drift:18px;  width:2px;height:2px; animation-duration:7s;  animation-delay:0s;"></span>
+  <span style="left:14%; --drift:-24px; width:3px;height:3px; animation-duration:9s;  animation-delay:1.2s;"></span>
+  <span style="left:23%; --drift:10px;  width:2px;height:2px; animation-duration:6.5s;animation-delay:2.4s;"></span>
+  <span style="left:34%; --drift:-14px; width:3px;height:3px; animation-duration:8s;  animation-delay:0.6s;"></span>
+  <span style="left:47%; --drift:20px;  width:2px;height:2px; animation-duration:7.5s;animation-delay:3.1s;"></span>
+  <span style="left:58%; --drift:-18px; width:2px;height:2px; animation-duration:9.5s;animation-delay:1.8s;"></span>
+  <span style="left:69%; --drift:16px;  width:3px;height:3px; animation-duration:6.8s;animation-delay:4s;"></span>
+  <span style="left:78%; --drift:-10px; width:2px;height:2px; animation-duration:8.4s;animation-delay:2.9s;"></span>
+  <span style="left:87%; --drift:22px;  width:3px;height:3px; animation-duration:7.2s;animation-delay:0.9s;"></span>
+  <span style="left:93%; --drift:-16px; width:2px;height:2px; animation-duration:9.1s;animation-delay:3.6s;"></span>
+</div>
+
+<header>
+  <span class="eyebrow-mark"></span>
+  <div class="flame-wrap">
+    <svg class="flame" viewBox="0 0 40 50" aria-hidden="true">
+      <path class="tongue t3" d="M20 46 C10 38 8 28 14 18 C15 24 18 25 19 22 C21 27 25 26 24 20 C30 28 30 40 20 46 Z" fill="#ff7a29" opacity="0.55"/>
+      <path class="tongue t2" d="M20 46 C12 39 11 30 16 21 C17 26 19 27 20 24 C22 28 25 27 24 22 C29 29 28 39 20 46 Z" fill="#ffa64d" opacity="0.8"/>
+      <path class="tongue t1" d="M20 46 C15 40 15 33 18 26 C18.5 30 20 30.5 20.5 28 C21.5 31 23.5 30 23 26 C26 32 25 39 20 46 Z" fill="#ffd8a0"/>
+    </svg>
+    <h1>Ковальня</h1>
+  </div>
+  <p class="tag">Вироби ручної ковки — метал, вогонь і робота молотка. Кожен предмет виходить з горна одним і назавжди.</p>
+</header>
+
+<div class="stage">
+
+  <!-- LEFT RAIL: anvil + hammer -->
+  <div class="rail" aria-hidden="true">
+    <svg viewBox="0 0 120 200" xmlns="http://www.w3.org/2000/svg">
+      <!-- anvil -->
+      <g>
+        <rect x="30" y="150" width="14" height="26" fill="#2b241d"/>
+        <path d="M18 150 L74 150 L68 138 L24 138 Z" fill="#3a322a"/>
+        <path d="M20 138 L72 138 L96 128 L84 118 L60 124 L26 124 Z" fill="#4a4038"/>
+        <ellipse class="glow-patch" cx="58" cy="126" rx="10" ry="3" fill="#ff7a29" opacity="0.3"/>
+      </g>
+      <!-- hammer, pivoting near top -->
+      <g class="hammer-group">
+        <rect x="74" y="10" width="6" height="70" rx="2" fill="#5b4a36"/>
+        <rect x="60" y="0" width="34" height="16" rx="3" fill="#6b625a"/>
+        <rect x="60" y="0" width="34" height="5" fill="#847a70"/>
+      </g>
+      <!-- sparks on impact -->
+      <g class="spark-burst">
+        <circle cx="58" cy="122" r="2" fill="#ffcf8a" style="--dx:14px;--dy:-18px"/>
+        <circle cx="58" cy="122" r="1.6" fill="#ff7a29" style="--dx:-10px;--dy:-14px"/>
+        <circle cx="58" cy="122" r="1.4" fill="#ffcf8a" style="--dx:4px;--dy:-22px"/>
+        <circle cx="58" cy="122" r="1.8" fill="#ff7a29" style="--dx:-16px;--dy:-8px"/>
+      </g>
+    </svg>
+  </div>
+
+  <main>
+    <div class="section-head">
+      <h2>Роботи з горна</h2>
+      <p>Світлини готових виробів — від дрібної фурнітури до великих кованих форм.</p>
+    </div>
+
+    <div class="gallery">
+      <div class="heat-shimmer"></div>
+
+      <div class="piece">
+        <div class="placeholder">
+          <span class="mark">⚒</span>
+          <span>Місце для фото виробу</span>
+        </div>
+        <div class="cap">Кована троянда</div>
+      </div>
+
+      <div class="piece">
+        <div class="placeholder">
+          <span class="mark">⚒</span>
+          <span>Місце для фото виробу</span>
+        </div>
+        <div class="cap">Ворота, орнамент "лоза"</div>
+      </div>
+
+      <div class="piece">
+        <div class="placeholder">
+          <span class="mark">⚒</span>
+          <span>Місце для фото виробу</span>
+        </div>
+        <div class="cap">Камінні щипці</div>
+      </div>
+
+      <div class="piece">
+        <div class="placeholder">
+          <span class="mark">⚒</span>
+          <span>Місце для фото виробу</span>
+        </div>
+        <div class="cap">Кований світильник</div>
+      </div>
+
+      <div class="piece">
+        <div class="placeholder">
+          <span class="mark">⚒</span>
+          <span>Місце для фото виробу</span>
+        </div>
+        <div class="cap">Перила сходів</div>
+      </div>
+
+      <div class="piece">
+        <div class="placeholder">
+          <span class="mark">⚒</span>
+          <span>Місце для фото виробу</span>
+        </div>
+        <div class="cap">Дверна ручка ручної роботи</div>
+      </div>
+
+    </div>
+
+    <div class="chain-divider" aria-hidden="true">
+      <svg viewBox="0 0 70 60" xmlns="http://www.w3.org/2000/svg">
+        <g class="chain-swing">
+          <ellipse cx="35" cy="6"  rx="5" ry="7" fill="none" stroke="#847a70" stroke-width="3"/>
+          <ellipse cx="35" cy="18" rx="5" ry="7" fill="none" stroke="#6b625a" stroke-width="3"/>
+          <ellipse cx="35" cy="30" rx="5" ry="7" fill="none" stroke="#847a70" stroke-width="3"/>
+          <path d="M35 37 C28 37 25 44 30 50 C33 53 30 56 26 55" fill="none" stroke="#6b625a" stroke-width="3"/>
+          <circle class="hook-glow" cx="26" cy="55" r="2.4" fill="#ff7a29"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="strip">
+      <p>Метал не прощає поспіху. Кожен вигин — це <strong>розпечений брусок</strong>, десяток ударів і холодна вода наприкінці.</p>
+    </div>
+
+  </main>
+
+  <!-- RIGHT RAIL: bellows -->
+  <div class="rail" aria-hidden="true">
+    <svg viewBox="0 0 120 200" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(10,60)">
+        <!-- fixed back board -->
+        <rect x="0" y="0" width="10" height="70" fill="#3a322a"/>
+        <!-- bellows body (scales horizontally) -->
+        <g class="bellows-group">
+          <path d="M10 6 L64 0 L64 70 L10 64 Z" fill="#5b4a36"/>
+          <path d="M10 6 L64 0 L64 8 L10 14 Z" fill="#6b5a44"/>
+          <line x1="22" y1="8" x2="22" y2="62" stroke="#3a322a" stroke-width="2"/>
+          <line x1="36" y1="5" x2="36" y2="65" stroke="#3a322a" stroke-width="2"/>
+          <line x1="50" y1="2" x2="50" y2="68" stroke="#3a322a" stroke-width="2"/>
+        </g>
+        <!-- nozzle -->
+        <rect x="64" y="30" width="26" height="10" fill="#847a70"/>
+        <!-- ember glow at nozzle tip -->
+        <circle class="ember-glow" cx="94" cy="35" r="6" fill="#ff7a29"/>
+        <circle class="ember-glow" cx="94" cy="35" r="10" fill="#ff7a29" opacity="0.25"/>
+      </g>
+      <!-- drifting sparks rising from the ember -->
+      <g class="drift">
+        <circle cx="100" cy="130" r="1.6" fill="#ffcf8a"/>
+        <circle cx="106" cy="128" r="1.3" fill="#ff7a29"/>
+        <circle cx="96" cy="132" r="1.4" fill="#ffcf8a"/>
+      </g>
+    </svg>
+  </div>
+
+</div>
+
+<footer>
+  Ковальня — вироби ручної роботи. <a href="#top">Нагору ↑</a>
+</footer>
+
+</body>
+</html>
